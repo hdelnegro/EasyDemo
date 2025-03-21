@@ -3,7 +3,7 @@
     "runtime": "com.redhat.Platform",
     "runtime-version": "el9",
     "sdk": "com.redhat.Sdk",
-    "command": "hello-world.py",
+    "command": "python3",
     "finish-args": [
         "--share=ipc",
         "--socket=fallback-x11",
@@ -12,9 +12,18 @@
     "cleanup": ["/include", "/lib/pkgconfig"],
     "modules": [
         {
+            "name": "python3",
+            "buildsystem": "simple",
+            "build-commands": [],
+            "ensure-writable": [
+                "/lib/python*/site-packages"
+            ]
+        },
+        {
             "name": "demoapp",
             "buildsystem": "simple",
             "build-commands": [
+                "chmod +x hello-world.py",
                 "install -Dm755 hello-world.py /app/bin/hello-world.py",
                 "install -Dm644 com.rhtraining.demoapp.desktop /app/share/applications/com.rhtraining.demoapp.desktop",
                 "install -Dm644 com.rhtraining.demoapp.png /app/share/icons/hicolor/128x128/apps/com.rhtraining.demoapp.png"
