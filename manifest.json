@@ -35,6 +35,13 @@
             ]
         },
         {
+            "name": "psutil",
+            "buildsystem": "simple",
+            "build-commands": [
+                "pip3 install --prefix=/app psutil"
+            ]
+        },
+        {
             "name": "demoapp",
             "buildsystem": "simple",
             "build-commands": [

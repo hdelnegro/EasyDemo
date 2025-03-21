@@ -5,7 +5,8 @@
   <summary>A simple demo application</summary>
   <description>
     <p>
-      A simple demonstration application showing how to package a bash/zenity app as a Flatpak.
+      A simple demonstration application showing how to package a Python/GTK app as a Flatpak.
+      Features include a welcome message and interactive buttons.
     </p>
   </description>
   <metadata_license>CC0-1.0</metadata_license>
