@@ -17,14 +17,6 @@
             "build-commands": [
                 "dnf install -y python3-gobject"
             ],
-            "sources": [
-                {
-                    "type": "file",
-                    "path": "python3-gobject-3.42.0-1.el9.x86_64.rpm",
-                    "url": "https://mirrors.rpmfusion.org/free/el/updates/9/x86_64/python3-gobject-3.42.0-1.el9.x86_64.rpm",
-                    "sha256": "b8a04c7445f5df2790d7eb979907d4917c706c7f474ffd5d1052f83396d10c8b"
-                }
-            ],
             "ensure-writable": [
                 "/lib/python*/site-packages"
             ]
