@@ -26,3 +26,8 @@ flatpak build-export ~/repo appdir stable
 # Deploys the flatpak repository file
 cp rhtraining.flatpakrepo ~/repo
 cp icon.png ~/repo
+cp rhtraining.gpg ~/repo
+# Signs the repository
+flatpak build-sign ~/repo --gpg-sign=9DC24AE7C186B84CAD9A381CD176CF204974AA22 --gpg-homedir=gpg
+# Signs the summary file
+flatpak build-update-repo  ~/repo --gpg-sign=9DC24AE7C186B84CAD9A381CD176CF204974AA22 --gpg-homedir=gpg
