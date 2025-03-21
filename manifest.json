@@ -7,7 +7,8 @@
     "finish-args": [
         "--share=ipc",
         "--socket=fallback-x11",
-        "--socket=wayland"
+        "--socket=wayland",
+        "--filesystem=host-os-release:ro"
     ],
     "cleanup": ["/include", "/lib/pkgconfig"],
     "modules": [
@@ -15,7 +16,7 @@
             "name": "python3",
             "buildsystem": "simple",
             "build-commands": [
-                "dnf install -y python3-gobject"
+                "rpm-ostree install -y python3-gobject"
             ],
             "ensure-writable": [
                 "/lib/python*/site-packages"
