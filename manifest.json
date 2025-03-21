@@ -9,7 +9,7 @@
             "name": "hello-world",
             "buildsystem": "simple",
             "build-commands": [
-                "install -Dm755 hello-world.py /app/bin/hello-world.py"
+                "install -Dm755 src/hello-world.py /app/bin/hello-world.py"
             ],
             "sources": [
                 {
