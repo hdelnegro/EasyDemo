@@ -127,26 +127,48 @@ class DemoWindow(Gtk.Window):
         info = []
         try:
             hostname = socket.gethostname()
-            default_iface = netifaces.gateways()['default'][netifaces.AF_INET][1]
-            addrs = netifaces.ifaddresses(default_iface)
-            ipv4 = addrs[netifaces.AF_INET][0]
-            mac = addrs[netifaces.AF_LINK][0]['addr']
-            dns = []
-            with open('/etc/resolv.conf', 'r') as f:
-                for line in f:
-                    if line.startswith('nameserver'):
-                        dns.append(line.split()[1])
+            
+            # Get default interface info
+            gw_info = netifaces.gateways().get('default', {}).get(netifaces.AF_INET, [None, None])
+            if not gw_info[1]:  # If no default interface found, use first available
+                interfaces = netifaces.interfaces()
+                default_iface = next((i for i in interfaces if i != 'lo'), None)
+            else:
+                default_iface = gw_info[1]
 
-            info = [
-                ("Hostname", hostname),
-                ("IPv4 Address", ipv4['addr']),
-                ("Netmask", ipv4['netmask']),
-                ("Gateway", netifaces.gateways()['default'][netifaces.AF_INET][0]),
-                ("DNS Servers", ', '.join(dns)),
-                ("MAC Address", mac)
-            ]
+            if default_iface:
+                addrs = netifaces.ifaddresses(default_iface)
+                ipv4_info = addrs.get(netifaces.AF_INET, [{}])[0]
+                
+                # Try to get MAC address, but don't fail if unavailable
+                try:
+                    mac = addrs.get(netifaces.AF_LINK, [{'addr': 'N/A'}])[0]['addr']
+                except:
+                    mac = 'N/A'
+
+                # Get DNS servers
+                dns = []
+                try:
+                    with open('/etc/resolv.conf', 'r') as f:
+                        for line in f:
+                            if line.startswith('nameserver'):
+                                dns.append(line.split()[1])
+                except:
+                    dns = ['N/A']
+
+                info = [
+                    ("Hostname", hostname),
+                    ("Interface", default_iface),
+                    ("IPv4 Address", ipv4_info.get('addr', 'N/A')),
+                    ("Netmask", ipv4_info.get('netmask', 'N/A')),
+                    ("Gateway", gw_info[0] or 'N/A'),
+                    ("DNS Servers", ', '.join(dns)),
+                    ("MAC Address", mac)
+                ]
+            else:
+                info = [("Error", "No network interface found")]
         except Exception as e:
-            info = [("Error", str(e))]
+            info = [("Error", f"Network information unavailable: {str(e)}")]
         return info
 
     def get_storage_info(self):
