@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Demo App
 Comment=Simple Flatpak Demo Application
-Exec=hello-world.sh
+Exec=hello-world.py
 Icon=com.rhtraining.demoapp
 Type=Application
 Categories=GTK;Utility;
