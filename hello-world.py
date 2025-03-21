@@ -1,45 +1,116 @@
 #!/usr/bin/env python3
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk, GLib
 import platform
 import psutil
 import datetime
+import socket
+import netifaces
+import os
 
 class DemoWindow(Gtk.Window):
     def __init__(self):
         super().__init__(title="System Information Viewer")
         self.set_default_size(600, 400)
-        self.set_border_width(10)
 
-        # Create a vertical box
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        # Load CSS
+        css_provider = Gtk.CssProvider()
+        css_provider.load_from_data(b"""
+            .header-label { font-size: 24px; font-weight: bold; margin: 10px; }
+            .info-label { font-size: 14px; margin: 5px; }
+            .info-value { font-size: 14px; margin: 5px; }
+            .view-button { font-weight: bold; padding: 8px 15px; margin: 0 5px; }
+            .view-button:checked { background: #3498db; color: white; }
+        """)
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(),
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+
+        # Create header bar
+        header = Gtk.HeaderBar()
+        header.set_show_close_button(True)
+        header.set_title("System Information Viewer")
+        self.set_titlebar(header)
+
+        # Create main box
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         self.add(vbox)
 
-        # Create a scrolled window
-        scrolled = Gtk.ScrolledWindow()
-        scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        vbox.pack_start(scrolled, True, True, 0)
+        # Create button box for view selection
+        view_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        view_box.set_halign(Gtk.Align.CENTER)
+        view_box.set_margin_top(10)
+        view_box.set_margin_bottom(10)
 
-        # Create a vertical box for the system info
-        self.info_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        scrolled.add(self.info_box)
+        # Create view buttons
+        self.sysinfo_button = Gtk.RadioButton.new_with_label_from_widget(None, "System")
+        self.network_button = Gtk.RadioButton.new_with_label_from_widget(self.sysinfo_button, "Network")
+        self.storage_button = Gtk.RadioButton.new_with_label_from_widget(self.sysinfo_button, "Storage")
 
-        # Dictionary to store value labels
-        self.value_labels = {}
+        for button in [self.sysinfo_button, self.network_button, self.storage_button]:
+            button.get_style_context().add_class("view-button")
+            view_box.pack_start(button, False, False, 0)
+            button.connect("toggled", self.on_view_button_toggled)
 
-        # Initialize system information
-        self.update_system_info()
+        vbox.pack_start(view_box, False, False, 0)
 
-        # Add refresh button
-        refresh_button = Gtk.Button(label="Refresh")
+        # Create stack for different views
+        self.stack = Gtk.Stack()
+        self.stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
+        
+        # Create grids for different views
+        self.sysinfo_grid = self.create_grid()
+        self.network_grid = self.create_grid()
+        self.storage_grid = self.create_grid()
+
+        # Add grids to stack
+        self.stack.add_named(self.sysinfo_grid, "sysinfo")
+        self.stack.add_named(self.network_grid, "network")
+        self.stack.add_named(self.storage_grid, "storage")
+
+        # Create main box
+        vbox.pack_start(self.stack, True, True, 0)
+
+        # Add refresh and quit buttons
+        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        button_box.set_halign(Gtk.Align.CENTER)
+        button_box.set_margin_bottom(20)
+
+        # Update refresh button
+        refresh_button = Gtk.Button()
+        refresh_button.set_label("Refresh")
+        refresh_icon = Gtk.Image.new_from_icon_name("view-refresh-symbolic", Gtk.IconSize.BUTTON)
+        refresh_button.set_image(refresh_icon)
+        refresh_button.set_always_show_image(True)
         refresh_button.connect("clicked", self.on_refresh_clicked)
-        vbox.pack_start(refresh_button, False, False, 0)
+        button_box.pack_start(refresh_button, False, False, 0)
 
-        # Add quit button
-        quit_button = Gtk.Button(label="Quit")
+        # Update quit button
+        quit_button = Gtk.Button()
+        quit_button.set_label("Quit")
+        quit_icon = Gtk.Image.new_from_icon_name("application-exit-symbolic", Gtk.IconSize.BUTTON)
+        quit_button.set_image(quit_icon)
+        quit_button.set_always_show_image(True)
         quit_button.connect("clicked", self.on_quit_clicked)
-        vbox.pack_start(quit_button, False, False, 0)
+        button_box.pack_start(quit_button, False, False, 0)
+
+        vbox.pack_end(button_box, False, False, 0)
+
+        # Initialize views
+        self.update_current_view()
+
+    def create_grid(self):
+        grid = Gtk.Grid()
+        grid.set_column_spacing(40)
+        grid.set_row_spacing(10)
+        grid.set_margin_start(50)
+        grid.set_margin_end(20)
+        grid.set_margin_top(20)
+        grid.set_margin_bottom(20)
+        return grid
 
     def get_system_info(self):
         return [
@@ -52,28 +123,85 @@ class DemoWindow(Gtk.Window):
             ("Boot Time", datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S"))
         ]
 
-    def update_system_info(self):
-        system_info = self.get_system_info()
-        
-        # Clear existing widgets if any
-        for child in self.info_box.get_children():
-            self.info_box.remove(child)
+    def get_network_info(self):
+        info = []
+        try:
+            hostname = socket.gethostname()
+            default_iface = netifaces.gateways()['default'][netifaces.AF_INET][1]
+            addrs = netifaces.ifaddresses(default_iface)
+            ipv4 = addrs[netifaces.AF_INET][0]
+            mac = addrs[netifaces.AF_LINK][0]['addr']
+            dns = []
+            with open('/etc/resolv.conf', 'r') as f:
+                for line in f:
+                    if line.startswith('nameserver'):
+                        dns.append(line.split()[1])
 
-        # Add system information to the window
-        for label, value in system_info:
-            hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=20)
+            info = [
+                ("Hostname", hostname),
+                ("IPv4 Address", ipv4['addr']),
+                ("Netmask", ipv4['netmask']),
+                ("Gateway", netifaces.gateways()['default'][netifaces.AF_INET][0]),
+                ("DNS Servers", ', '.join(dns)),
+                ("MAC Address", mac)
+            ]
+        except Exception as e:
+            info = [("Error", str(e))]
+        return info
+
+    def get_storage_info(self):
+        info = []
+        partitions = psutil.disk_partitions()
+        for partition in partitions:
+            try:
+                usage = psutil.disk_usage(partition.mountpoint)
+                info.append((
+                    partition.mountpoint,
+                    f"Total: {usage.total / (1024**3):.1f}GB, "
+                    f"Used: {usage.used / (1024**3):.1f}GB, "
+                    f"Free: {usage.free / (1024**3):.1f}GB "
+                    f"({usage.percent}% used)"
+                ))
+            except Exception:
+                pass
+        return info
+
+    def update_grid(self, grid, info):
+        for child in grid.get_children():
+            grid.remove(child)
+
+        for row, (label, value) in enumerate(info):
             label_widget = Gtk.Label(label=f"{label}:")
+            label_widget.get_style_context().add_class("info-label")
             label_widget.set_halign(Gtk.Align.START)
+            
             value_widget = Gtk.Label(label=value)
+            value_widget.get_style_context().add_class("info-value")
             value_widget.set_halign(Gtk.Align.START)
-            hbox.pack_start(label_widget, False, False, 0)
-            hbox.pack_start(value_widget, False, False, 0)
-            self.info_box.pack_start(hbox, False, False, 0)
+            value_widget.set_line_wrap(True)
+            
+            grid.attach(label_widget, 0, row, 1, 1)
+            grid.attach(value_widget, 1, row, 1, 1)
         
-        self.info_box.show_all()
+        grid.show_all()
+
+    def update_current_view(self):
+        if self.sysinfo_button.get_active():
+            self.stack.set_visible_child_name("sysinfo")
+            self.update_grid(self.sysinfo_grid, self.get_system_info())
+        elif self.network_button.get_active():
+            self.stack.set_visible_child_name("network")
+            self.update_grid(self.network_grid, self.get_network_info())
+        else:
+            self.stack.set_visible_child_name("storage")
+            self.update_grid(self.storage_grid, self.get_storage_info())
+
+    def on_view_button_toggled(self, button):
+        if button.get_active():
+            self.update_current_view()
 
     def on_refresh_clicked(self, button):
-        self.update_system_info()
+        self.update_current_view()
 
     def on_quit_clicked(self, button):
         Gtk.main_quit()
