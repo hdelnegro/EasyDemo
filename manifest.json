@@ -9,23 +9,8 @@
         "--socket=fallback-x11",
         "--socket=wayland"
     ],
-    "cleanup": ["/include", "/lib/pkgconfig", "*.la", "*.a"],
-    "cleanup-commands": [
-        "rm -rf /app/include",
-        "rm -rf /app/lib/pkgconfig"
-    ],
+    "cleanup": ["/include", "/lib/pkgconfig"],
     "modules": [
-        {
-            "name": "gtk3",
-            "buildsystem": "simple",
-            "build-commands": [],
-            "cleanup": ["*"],
-            "build-options": {
-                "build-args": [
-                    "--share=network"
-                ]
-            }
-        },
         {
             "name": "demoapp",
             "buildsystem": "simple",
@@ -34,7 +19,6 @@
                 "install -Dm644 com.rhtraining.demoapp.desktop /app/share/applications/com.rhtraining.demoapp.desktop",
                 "install -Dm644 com.rhtraining.demoapp.png /app/share/icons/hicolor/128x128/apps/com.rhtraining.demoapp.png"
             ],
-            "cleanup": ["*.la", "*.a"],
             "sources": [
                 {
                     "type": "file",
