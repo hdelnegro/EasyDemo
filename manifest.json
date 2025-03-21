@@ -1,0 +1,22 @@
+{
+    "app-id": "com.example.HelloWorld",
+    "runtime": "org.gnome.Platform",
+    "runtime-version": "48",
+    "sdk": "org.gnome.Sdk",
+    "command": "hello-world.py",
+    "modules": [
+        {
+            "name": "hello-world",
+            "buildsystem": "simple",
+            "build-commands": [
+                "install -Dm755 hello-world.py /app/bin/hello-world.py"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "path": "hello-world.py"
+                }
+            ]
+        }
+    ]
+}
