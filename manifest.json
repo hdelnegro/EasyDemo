@@ -1,20 +1,44 @@
 {
-    "app-id": "com.example.HelloWorld",
-    "runtime": "org.gnome.Platform",
-    "runtime-version": "48",
-    "sdk": "org.gnome.Sdk",
+    "app-id": "com.rhtraining.demoapp",
+    "runtime": "com.redhat.Platform",
+    "runtime-version": "el9",
+    "sdk": "com.redhat.Sdk",
     "command": "hello-world.py",
+    "finish-args": [
+        "--share=ipc",
+        "--socket=fallback-x11",
+        "--socket=wayland"
+    ],
     "modules": [
         {
-            "name": "hello-world",
+            "name": "gtk3",
+            "buildsystem": "simple",
+            "build-commands": [],
+            "cleanup": ["*"],
+            "buildsystem-depends": [
+                "gtk3-3.24.43-3.el10"
+            ]
+        },
+        {
+            "name": "demoapp",
             "buildsystem": "simple",
             "build-commands": [
-                "install -Dm755 src/hello-world.py /app/bin/hello-world.py"
+                "install -Dm755 hello-world.py /app/bin/hello-world.py",
+                "install -Dm644 com.rhtraining.demoapp.desktop /app/share/applications/com.rhtraining.demoapp.desktop",
+                "install -Dm644 com.rhtraining.demoapp.png /app/share/icons/hicolor/128x128/apps/com.rhtraining.demoapp.png"
             ],
             "sources": [
                 {
                     "type": "file",
                     "path": "hello-world.py"
+                },
+                {
+                    "type": "file",
+                    "path": "com.rhtraining.demoapp.desktop"
+                },
+                {
+                    "type": "file",
+                    "path": "com.rhtraining.demoapp.png"
                 }
             ]
         }
