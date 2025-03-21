@@ -22,30 +22,14 @@ class DemoWindow(Gtk.Window):
         vbox.pack_start(scrolled, True, True, 0)
 
         # Create a vertical box for the system info
-        info_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        scrolled.add(info_box)
+        self.info_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        scrolled.add(self.info_box)
 
-        # Collect system information
-        system_info = [
-            ("OS", platform.system() + " " + platform.release()),
-            ("Architecture", platform.machine()),
-            ("CPU Cores", str(psutil.cpu_count())),
-            ("CPU Usage", f"{psutil.cpu_percent()}%"),
-            ("Memory Total", f"{psutil.virtual_memory().total / (1024**3):.2f} GB"),
-            ("Memory Available", f"{psutil.virtual_memory().available / (1024**3):.2f} GB"),
-            ("Boot Time", datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S"))
-        ]
+        # Dictionary to store value labels
+        self.value_labels = {}
 
-        # Add system information to the window
-        for label, value in system_info:
-            hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=20)
-            label_widget = Gtk.Label(label=f"{label}:")
-            label_widget.set_halign(Gtk.Align.START)
-            value_widget = Gtk.Label(label=value)
-            value_widget.set_halign(Gtk.Align.START)
-            hbox.pack_start(label_widget, False, False, 0)
-            hbox.pack_start(value_widget, False, False, 0)
-            info_box.pack_start(hbox, False, False, 0)
+        # Initialize system information
+        self.update_system_info()
 
         # Add refresh button
         refresh_button = Gtk.Button(label="Refresh")
@@ -57,9 +41,39 @@ class DemoWindow(Gtk.Window):
         quit_button.connect("clicked", self.on_quit_clicked)
         vbox.pack_start(quit_button, False, False, 0)
 
+    def get_system_info(self):
+        return [
+            ("OS", platform.system() + " " + platform.release()),
+            ("Architecture", platform.machine()),
+            ("CPU Cores", str(psutil.cpu_count())),
+            ("CPU Usage", f"{psutil.cpu_percent()}%"),
+            ("Memory Total", f"{psutil.virtual_memory().total / (1024**3):.2f} GB"),
+            ("Memory Available", f"{psutil.virtual_memory().available / (1024**3):.2f} GB"),
+            ("Boot Time", datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S"))
+        ]
+
+    def update_system_info(self):
+        system_info = self.get_system_info()
+        
+        # Clear existing widgets if any
+        for child in self.info_box.get_children():
+            self.info_box.remove(child)
+
+        # Add system information to the window
+        for label, value in system_info:
+            hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=20)
+            label_widget = Gtk.Label(label=f"{label}:")
+            label_widget.set_halign(Gtk.Align.START)
+            value_widget = Gtk.Label(label=value)
+            value_widget.set_halign(Gtk.Align.START)
+            hbox.pack_start(label_widget, False, False, 0)
+            hbox.pack_start(value_widget, False, False, 0)
+            self.info_box.pack_start(hbox, False, False, 0)
+        
+        self.info_box.show_all()
+
     def on_refresh_clicked(self, button):
-        # TODO: Update system information
-        pass
+        self.update_system_info()
 
     def on_quit_clicked(self, button):
         Gtk.main_quit()
