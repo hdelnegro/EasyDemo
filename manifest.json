@@ -40,6 +40,10 @@
             "build-commands": [
                 "python3 setup.py install --prefix=/app"
             ],
+            "ensure-writable": [
+                "/app/lib/python*/site-packages",
+                "/app/lib64/python*/site-packages"
+            ],
             "sources": [
                 {
                     "type": "archive",
@@ -53,6 +57,10 @@
             "buildsystem": "simple",
             "build-commands": [
                 "python3 setup.py install --prefix=/app"
+            ],
+            "ensure-writable": [
+                "/app/lib/python*/site-packages",
+                "/app/lib64/python*/site-packages"
             ],
             "sources": [
                 {
