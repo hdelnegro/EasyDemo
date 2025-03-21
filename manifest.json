@@ -16,7 +16,7 @@
             "name": "python3",
             "buildsystem": "simple",
             "build-commands": [
-                "rpm-ostree install -y python3-gobject"
+                "dnf install -y python3-gobject"
             ],
             "ensure-writable": [
                 "/lib/python*/site-packages"
