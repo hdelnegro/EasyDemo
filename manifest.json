@@ -20,9 +20,11 @@
             "buildsystem": "simple",
             "build-commands": [],
             "cleanup": ["*"],
-            "buildsystem-depends": [
-                "gtk3-3.24.43-3.el10"
-            ]
+            "build-options": {
+                "build-args": [
+                    "--share=network"
+                ]
+            }
         },
         {
             "name": "demoapp",
