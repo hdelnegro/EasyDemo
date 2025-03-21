@@ -1,0 +1,5 @@
+[Runtime]
+name=com.rhtraining.demoapp.Debug
+
+[ExtensionOf]
+ref=app/com.rhtraining.demoapp/x86_64/master

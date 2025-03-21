@@ -1,0 +1,4 @@
+[Application]
+name=com.rhtraining.demoapp
+runtime=com.redhat.Platform/x86_64/el9
+sdk=com.redhat.Sdk/x86_64/el9

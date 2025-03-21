@@ -1,0 +1,87 @@
+{
+  "id" : "com.rhtraining.demoapp",
+  "runtime" : "com.redhat.Platform",
+  "runtime-version" : "el9",
+  "runtime-commit" : "2734846ba95da005bf546cff7ce5c4312b85a945d58bdcde92e0b2fb03edc25b",
+  "sdk" : "com.redhat.Sdk",
+  "sdk-commit" : "bc4a8102933ca47502369aeba952ecf46b7626d4d946837189bc3d423ccf15e4",
+  "command" : "hello-world.py",
+  "modules" : [
+    {
+      "name" : "pycairo",
+      "buildsystem" : "meson",
+      "sources" : [
+        {
+          "url" : "https://github.com/pygobject/pycairo/releases/download/v1.18.2/pycairo-1.18.2.tar.gz",
+          "sha256" : "dcb853fd020729516e8828ad364084e752327d4cff8505d20b13504b32b16531",
+          "type" : "archive"
+        }
+      ]
+    },
+    {
+      "name" : "python3-gobject",
+      "buildsystem" : "meson",
+      "sources" : [
+        {
+          "url" : "https://download.gnome.org/sources/pygobject/3.42/pygobject-3.42.0.tar.xz",
+          "sha256" : "9b12616e32cfc792f9dc841d9c472a41a35b85ba67d3a6eb427e307a6fe4367b",
+          "type" : "archive"
+        }
+      ]
+    },
+    {
+      "name" : "psutil",
+      "buildsystem" : "simple",
+      "sources" : [
+        {
+          "url" : "https://files.pythonhosted.org/packages/source/p/psutil/psutil-5.9.6.tar.gz",
+          "sha256" : "e4b92ddcd7dd4cdd3f900180ea1e104932c7bce234fb88976e2a3b296441225a",
+          "type" : "archive"
+        }
+      ],
+      "build-commands" : [
+        "python3 setup.py install --prefix=/app"
+      ]
+    },
+    {
+      "name" : "demoapp",
+      "buildsystem" : "simple",
+      "sources" : [
+        {
+          "path" : "hello-world.py",
+          "type" : "file"
+        },
+        {
+          "path" : "com.rhtraining.demoapp.desktop",
+          "type" : "file"
+        },
+        {
+          "path" : "com.rhtraining.demoapp.png",
+          "type" : "file"
+        },
+        {
+          "path" : "com.rhtraining.demoapp.metainfo.xml",
+          "type" : "file"
+        }
+      ],
+      "build-commands" : [
+        "chmod +x hello-world.py",
+        "install -Dm755 hello-world.py /app/bin/hello-world.py",
+        "install -Dm644 com.rhtraining.demoapp.desktop /app/share/applications/com.rhtraining.demoapp.desktop",
+        "install -Dm644 com.rhtraining.demoapp.png /app/share/icons/hicolor/128x128/apps/com.rhtraining.demoapp.png",
+        "install -Dm644 com.rhtraining.demoapp.metainfo.xml /app/share/metainfo/com.rhtraining.demoapp.metainfo.xml"
+      ]
+    }
+  ],
+  "cleanup" : [
+    "/include",
+    "/lib/pkgconfig"
+  ],
+  "finish-args" : [
+    "--share=ipc",
+    "--socket=fallback-x11",
+    "--socket=wayland",
+    "--filesystem=host-os:ro"
+  ],
+  "source-date-epoch" : 1742565661
+}
