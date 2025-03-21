@@ -29,7 +29,8 @@
                 "chmod +x hello-world.py",
                 "install -Dm755 hello-world.py /app/bin/hello-world.py",
                 "install -Dm644 com.rhtraining.demoapp.desktop /app/share/applications/com.rhtraining.demoapp.desktop",
-                "install -Dm644 com.rhtraining.demoapp.png /app/share/icons/hicolor/128x128/apps/com.rhtraining.demoapp.png"
+                "install -Dm644 com.rhtraining.demoapp.png /app/share/icons/hicolor/128x128/apps/com.rhtraining.demoapp.png",
+                "install -Dm644 com.rhtraining.demoapp.metainfo.xml /app/share/metainfo/com.rhtraining.demoapp.metainfo.xml"
             ],
             "sources": [
                 {
@@ -43,6 +44,10 @@
                 {
                     "type": "file",
                     "path": "com.rhtraining.demoapp.png"
+                },
+                {
+                    "type": "file",
+                    "path": "com.rhtraining.demoapp.metainfo.xml"
                 }
             ]
         }
