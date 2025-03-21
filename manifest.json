@@ -8,7 +8,7 @@
         "--share=ipc",
         "--socket=fallback-x11",
         "--socket=wayland",
-        "--filesystem=host-os-release:ro"
+        "--filesystem=host-os:ro"
     ],
     "cleanup": ["/include", "/lib/pkgconfig"],
     "modules": [
