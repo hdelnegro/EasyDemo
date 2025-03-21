@@ -1,0 +1,7 @@
+[RH Training Repo]
+Title=RH Training
+Url=http://servera.lab.example.com/repo/
+Homepage=https://redhat.com/training
+Comment=Custom repository of Flatpak applications
+Description=Custom repository of Flatpak applications
+Icon=http://servera.lab.example.com/repo/logo.png
