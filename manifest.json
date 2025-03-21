@@ -15,7 +15,7 @@
             "name": "python3",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --no-index --find-links=\"file://${PWD}\" --prefix=/app python3-gobject"
+                "dnf install -y python3-gobject"
             ],
             "sources": [
                 {
