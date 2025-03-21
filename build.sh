@@ -25,3 +25,4 @@ rm -rf ~/repo
 flatpak build-export ~/repo appdir stable
 # Deploys the flatpak repository file
 cp rhtraining.flatpakrepo ~/repo
+cp icon.png ~/repo
